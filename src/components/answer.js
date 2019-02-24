@@ -23,23 +23,34 @@ export class AnswerOption extends HTMLElement {
 
     this.selected = false;
     const shadowRoot = this.attachShadow({ mode: 'open' });
-    shadowRoot.innerHTML = `<style>${styles}</style><div class="main">Hello</div>`;
+    shadowRoot.innerHTML = `<style>${styles}</style><div class="main"><slot></slot></div>`;
     this.buttonDiv = shadowRoot.querySelector('.main');
     this.buttonDiv.addEventListener('click', this.toggle.bind(this));
   }
 
   toggle() {
-    this.selected ? this.deselectOption() : this.selectOption();
+    const status = this.selected ? this.deselectOption() : this.selectOption();
+    const group = this.getAttribute('group');
+    const value = this.getAttribute('value');
+    this.dispatchEvent(
+      new CustomEvent('answer-option-toggled', {
+        detail: {
+          group,
+          value,
+          status,
+        },
+      })
+    );
   }
 
   selectOption() {
     this.buttonDiv.classList.add('selected');
-    this.selected = true;
+    return (this.selected = true);
   }
 
   deselectOption() {
     this.buttonDiv.classList.remove('selected');
-    this.selected = false;
+    return (this.selected = false);
   }
 }
 
